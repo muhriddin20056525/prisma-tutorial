@@ -49,3 +49,46 @@ npx prisma generate
 ```
 
 - Bu buyruq `generated` nomli papka yaratadi va shu papka ichida biz yozgan modelga asoslanim kerakli kodlarni tayyorlab beradi
+
+---
+
+# **2-dars CRUD - Creating Records**
+
+```ts
+import { PrismaClient } from "./generated/prisma";
+
+// PrismaClient dan yangi object yaratish bu orqali malumotlar bazasi bilan ishlanadi
+const prisma = new PrismaClient();
+const users = await prisma.user.findMany();
+```
+
+- Prismadagi barcha userlarni olish
+- `user` model nomi
+- `findMany` - user modelidagi barcha malumotlarni array sifatida olib keladi
+
+```ts
+const newUser = await prisma.user.create({
+  // Bazaga yuborilishi kerak bo'lgan object
+  data: {
+    email: "m2@gmail.com",
+    name: "Muhriddin",
+  },
+});
+```
+
+- Bazaga yangi malumot qo'shish
+- `create` - Yangi malumot yaratadigan prisma xossasi
+
+```ts
+const manyNewUsers = await prisma.user.createMany({
+  // Ko'plab malumot yaratilayotganda array sifatida yuboriladi
+  data: [
+    { email: "s.haruno@gmail.com", name: "Sakura" },
+    { email: "s.uchiha@gmail.com", name: "Saske" },
+    { email: "n.uzumaki@gmail.com", name: "Naruto" },
+  ],
+});
+```
+
+- Bir martada ko'plab malumotlar yaratsih
+- `createMany` - bir vaqtning o'zida bir nechta malumot yaratish imkonini beradi
