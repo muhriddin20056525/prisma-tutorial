@@ -3,32 +3,25 @@ import { PrismaClient } from "./generated/prisma";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Find All Users
-  const users = await prisma.user.findMany();
-  console.log(users);
-  // Create User
-  // const newUser = await prisma.user.create({
-  //   data: {
-  //     email: "m2@gmail.com",
-  //     name: "Muhriddin",
-  //   },
-  // });
-  // console.log(newUser);
+  // ========================== FindFirst==========================
+  // const user = await prisma.user.findFirst();
+  // console.log(user);
 
-  // Create Many Users
-
-  // const manyNewUsers = await prisma.user.createMany({
-  //   data: [
-  //     { email: "s.haruno@gmail.com", name: "Sakura" },
-  //     { email: "s.uchiha@gmail.com", name: "Saske" },
-  //     { email: "n.uzumaki@gmail.com", name: "Naruto" },
-  //   ],
+  // ========================== Find User By ID ==========================
+  // const user = await prisma.user.findUnique({
+  //   where: { id: 12 },
   // });
 
-  // console.log(manyNewUsers);
+  const user = await prisma.user.findFirst({
+    where: {
+      name: {
+        equals: "Saske",
+      },
+    },
+  });
+
+  console.log(user);
 }
-
-main();
 
 main()
   .then(async () => {

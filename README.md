@@ -92,3 +92,56 @@ const manyNewUsers = await prisma.user.createMany({
 
 - Bir martada ko'plab malumotlar yaratsih
 - `createMany` - bir vaqtning o'zida bir nechta malumot yaratish imkonini beradi
+
+---
+
+# **3-dars CRUD - Reading Records | Prisma Studio**
+
+```bash
+npx prisma studio
+```
+
+- Bu buyruq `Prisma Studio` ni ishga tushiradi — bu brauzerda ochiladigan grafik interfeys bo‘lib, unda ma'lumotlar bazasidagi malumotlarni ko‘rish, tahrirlash va o‘chirish mumkin.
+
+```tsx
+const users = await prisma.user.findMany();
+console.log(users);
+```
+
+- `findMany` belgilangan modeldagi barcha malumotlarni array sifatida olib keladi
+
+```tsx
+const user = await prisma.user.findFirst();
+console.log(user);
+```
+
+- `findFirst` Bazadagi birinchi malumotni qaytaradi
+
+```tsx
+const user = await prisma.user.findUnique({
+  // qidiruv shartini belgilovchi obyekt.
+  where: { id: 12 },
+});
+
+console.log(user);
+```
+
+- `findUnique` id si `12` bo‘lgan yagona foydalanuvchini olib keladi.
+- Bundan tashqari `email` yoki boshqa xususiyatlar bilan ham qidirish mumkin `id` ni o'rniga o'sha xususiyat qo'yilsa bas
+
+```tsx
+const user = await prisma.user.findFirst({
+  // qidiruv sharti belgilovchi obyekt. Nimaga qarab izlashni ko‘rsatadi.
+  where: {
+    // modeldagi ustun nomi (ya’ni user jadvalidagi name degan ustun).
+    name: {
+      // taqqoslash operatori, ya’ni: "name ustuni "Saske" ga teng bo‘lsa".
+      equals: "Saske",
+    },
+  },
+});
+
+console.log(user);
+```
+
+- `findFirst` bilan shart asosida bazadan malumot qidirish
