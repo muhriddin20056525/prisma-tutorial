@@ -206,3 +206,70 @@ console.log(upsertedUser);
 
 - Prisma orqali user mavjud bo‘lsa yangilash, bo‘lmasa yaratish
 - `upsert` Prisma beradigan bazada biz so'ragan malumot mavjud bo‘lsa yangilash, bo‘lmasa yaratish funksiyasi
+
+---
+
+# **5-dars CRUD - Deleting Records and Selecting Fields**
+
+```tsx
+// 'prisma.user.delete()' funksiyasi foydalanuvchini bazadan o‘chiradi.
+const deletedUser = await prisma.user.delete({
+  // 'where' kalit so‘zi orqali qaysi foydalanuvchini o‘chirish kerakligini belgilaymiz
+  where: {
+    // 'id: 1' — id qiymati 1 ga teng bo‘lgan foydalanuvchi o‘chiriladi
+    id: 1,
+  },
+});
+
+// O‘chirilgan foydalanuvchi haqidagi ma’lumotni konsolga chiqaramiz
+console.log("Deleted User:", deletedUser);
+```
+
+- Prisma orqali 1 ta userni bazadan o'chirish
+- `delete` Prisma beradigan 1 ta malumotni o'chirivchi funksiya
+
+```tsx
+const manyDeletedUsers = await prisma.user.deleteMany({});
+console.log("Deleted Many Users:", manyDeletedUsers);
+```
+
+- Bazadagi barcha Userlarni o'chirish
+- `deleteMany` Prisma beradigan bazadagi barcha malumotlarni o'chirivchi funksiya
+
+```tsx
+// ID ga asoslanib bazadan bitta userni olish
+const user = await prisma.user.findUnique({
+  where: { id: 16 },
+});
+
+console.log("User with all fields:", user);
+```
+
+- Bitta userning barcha xususiyatlarini olish
+- `findUnique` Prisma beradigan `id (yoki boshqa unique field)` bazadan malumot qidiruvchi funksiya
+
+```tsx
+// ID ga asoslanib bazadan bitta userni olish
+const user = await prisma.user.findUnique({
+  where: { id: 16 },
+  // User xossalari orasidan faqatgina ID ni tanlab olish
+  select: { id: true },
+});
+
+console.log(user);
+```
+
+- `select` Prisma beradigan xossalar orasidan keraklilarini tanlaydigan funksiya
+- `select` objectiga boshqa xossalar ham berish mumkin (`select: { id: true, email: true },`)
+
+```tsx
+// Bazadagi barcha userlarni olish
+const user = await prisma.user.findMany({
+  select: { id: true, email: true },
+});
+
+console.log(user);
+```
+
+- Barcha userlarning `id va email` xossalarini olish
+- `findMany` prisma beradigan bazadagi barcha malumotni qaytaradigan funksiya

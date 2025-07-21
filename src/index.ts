@@ -3,35 +3,45 @@ import { PrismaClient } from "./generated/prisma";
 const prisma = new PrismaClient();
 
 async function main() {
-  // ===================================  Update a User ===================================
-  // const updateUser = await prisma.user.update({
-  //   where: { id: 14 },
-  //   data: {
-  //     name: "Rok Lee",
-  //   },
-  // });
-  // console.log(updateUser);
-  // ===================================  Update Many Users ===================================
-  // const manyUpdateUsers = await prisma.user.updateMany({
-  //   data: {
-  //     name: "REDACTED",
-  //   },
-  // });
-  // console.log(manyUpdateUsers);
-  // ===================================  Upsert ===================================
+  // Delete a User
 
-  const upsertedUser = await prisma.user.upsert({
-    where: { email: "s.haruno@gmail.com" },
-    create: {
-      email: "s.example.com",
-      name: "Shikamaru Nara",
-    },
-    update: {
-      name: "Shikamaru Nara (UPDATED)",
-    },
+  // const deletedUser = await prisma.user.delete({
+  //   where: {
+  //     id: 1,
+  //   },
+  // });
+
+  // console.log("Deleted User:", deletedUser);
+
+  // Delete Many Users
+
+  // const manyDeletedUsers = await prisma.user.deleteMany({});
+  // console.log("Deleted Many Users:", manyDeletedUsers);
+
+  // Select All Fields
+  // const user = await prisma.user.findUnique({
+  //   where: { id: 16 },
+  // });
+
+  // console.log("User with all fields:", user);
+
+  // Select Id Field
+  // const user = await prisma.user.findUnique({
+  //   where: { id: 16 },
+  //   select: { id: true },
+  // });
+
+  // Select ID and Email Fields
+  // const user = await prisma.user.findUnique({
+  //   where: { id: 16 },
+  //   select: { id: true, email: true },
+  // });
+
+  const user = await prisma.user.findMany({
+    select: { id: true, email: true },
   });
 
-  console.log(upsertedUser);
+  console.log(user);
 }
 
 main()
