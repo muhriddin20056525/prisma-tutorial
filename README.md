@@ -273,3 +273,101 @@ console.log(user);
 
 - Barcha userlarning `id va email` xossalarini olish
 - `findMany` prisma beradigan bazadagi barcha malumotni qaytaradigan funksiya
+
+---
+
+# **6-dars One-to-Many Relations**
+
+```tsx
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+  // Bitta foydalanuvchi bir nechta postga ega bo‘lishi mumkin (One-to-Many)
+  Post  Post[]
+}
+
+model Post {
+  id        Int     @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean @default(false)
+  // Bu post qaysi foydalanuvchiga tegishli (bog‘lanish)
+  user      User    @relation(fields: [userId], references: [id])
+  // Tashqi kalit (foreign key) sifatida foydalanuvchining ID'si
+  userId    Int
+}
+
+
+const newPost = await prisma.post.create({
+  data: {
+    title: "My Second Post",
+    content: "This is the content of my second post.",
+    // Postni yaratgan foydalanuvchining ID'si (userId = 2)
+    userId: 2,
+    published: true,
+  },
+});
+```
+
+- Prisma orqali `User` va `Post` modellarini bog'lash va qaysi postni qaysi user yaratganini aniqlash
+
+```ts
+const newPost = await prisma.post.create({
+  data: {
+    title: "My First Post",
+    user: {
+      connect: { id: 1 },
+    },
+  },
+});
+
+console.log(newPost);
+```
+
+- Post modeliga yangi malumot qo'shish va uni `user id` orqali userga bog'lash 2 usul
+
+```ts
+const userWithPosts = await prisma.user.findUnique({
+  where: { id: 2 },
+  // Postlarni olish
+  include: { Post: true },
+});
+
+console.log(userWithPosts);
+```
+
+- `User` ni o'zi yaratgan `Post` lar bilan bazadan olish
+
+```ts
+const userWithPosts = await prisma.user.findUnique({
+  where: { id: 2 },
+  select: {
+    id: true,
+    email: true,
+    name: true,
+    Post: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        published: true,
+      },
+    },
+  },
+});
+
+console.log(userWithPosts);
+```
+
+- `select` orqali `user` va `post` ning kerakli xossalarini tanlab olish
+
+```ts
+const postsByUser = await prisma.post.findMany({
+  where: { userId: 1 },
+  include: { user: true },
+});
+console.log(postsByUser);
+```
+
+- Barcha Postlarni uning ichidagi User malumotlariga qo'shib olish
