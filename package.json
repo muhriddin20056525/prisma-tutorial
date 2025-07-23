@@ -7,6 +7,9 @@
     "dev": "ts-node src/index.ts",
     "build": "tsc"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^22.9.1",
@@ -15,6 +18,7 @@
     "typescript": "^5.6.3"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.9.0",
     "@prisma/client": "^6.11.1"
   }
 }

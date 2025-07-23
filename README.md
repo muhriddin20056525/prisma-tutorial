@@ -371,3 +371,82 @@ console.log(postsByUser);
 ```
 
 - Barcha Postlarni uning ichidagi User malumotlariga qo'shib olish
+
+---
+
+# **7-dars Migrations And Seeding**
+
+`migration` — bu ma'lumotlar bazasi (database) strukturasi (masalan, tablitsalar, ustunlar) ni Prisma schema faylida qilgan o‘zgarishlaringiz asosida real ma’lumotlar bazasiga qo‘llash jarayonidir.
+
+```bash
+npx prisma migrate dev --name init
+```
+
+- Bu buyruq Prisma’dagi model o‘zgarishlarini asoslab, ma’lumotlar bazasida tablitsa (yoki o‘zgarish) yaratadi.
+
+```bash
+npx prisma migrate dev --name post_table_add_views_column
+```
+
+- Bu buyruq Post jadvaliga views nomli ustun qo‘shilganini Prisma orqali migration qilib, ma'lumotlar bazasiga qo‘llaydi.
+
+**`Seeding` — bu tablitsalarga dastlabki fake yoki real ma’lumotlarni avtomatik tarzda yozib berishdir.**
+
+```bash
+npm install @faker-js/faker
+
+```
+
+- Bu `@faker-js/faker` kutubxonasini o‘rnatadi — soxta (fake) ma’lumotlar yaratish uchun foydalaniladi.
+
+```ts
+// 10 ta foydalanuvchi yaratilyapti va ular createManyAndReturn orqali qaytarilyapti
+const users = await prisma.user.createManyAndReturn({
+  // createMany uchun 10 ta object (user) generate qilinmoqda
+  data: Array.from({ length: 10 }, () => ({
+    email: faker.internet.email(), // Faker orqali random email
+    name: faker.person.fullName(), // Faker orqali random to‘liq ism
+  })),
+
+  // Har bir user'dan faqat id ni qaytarish kerak
+  select: { id: true },
+});
+
+// Har bir foydalanuvchi uchun quyidagi kod ishlaydi
+for (const user of users) {
+  // Har bir user uchun 20 ta post yaratish
+  await prisma.post.createMany({
+    data: Array.from({ length: 20 }, () => {
+      const publish = faker.datatype.boolean(); // Post published bo‘lishi yoki yo‘qligi (true/false)
+
+      // Agar published bo‘lsa, views 1–1000 orasida; aks holda 0
+      const views = publish ? faker.number.int({ min: 1, max: 1000 }) : 0;
+
+      return {
+        title: faker.lorem.sentence(), // Post sarlavhasi — random jumla
+        content: faker.lorem.paragraphs(5), // Post matni — 5 ta paragraf
+        published: publish, // True yoki false
+        views: views, // Ko‘rishlar soni (0 yoki 1–1000)
+        userId: user.id, // Post qaysi userga tegishli — user.id orqali bog‘lanmoqda
+      };
+    }),
+  });
+}
+```
+
+- `Prisma` va `Faker` orqali 10 ta user va 200 ta post yaratish
+- Bu kodlar `prisma/seed.ts` fayli yaratilib shun ichida yoziladi
+
+```json
+"prisma": {
+  "seed": "ts-node prisma/seed.ts"
+},
+```
+
+- `package.json` faylida ushbu qism qo'shiladi yuqoridagi kodni ishga tushuradigan buyruq uchun
+
+```bash
+npx prisma db seed
+```
+
+- `package.json` faylida qo'shgan qismimizni ishga tushuradigan terminal buyruq
