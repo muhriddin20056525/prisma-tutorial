@@ -3,73 +3,49 @@ import { PrismaClient } from "../prisma/generated/prisma";
 const prisma = new PrismaClient();
 
 async function main() {
-  // ====================== gt: greater than | Filter posts based on views ======================
-  // const popularPosts = await prisma.post.findMany({
-  //   where: {
-  //     views: {gt: 500}
-  //   }
-  // })
-
-  // console.log(popularPosts.length);
-
-  // ====================== startsWith: Filter posts based on title ======================
-
+  // ======================== Sort by views of the post ========================
   // const posts = await prisma.post.findMany({
   //   where: {
-  //     title: {
-  //       startsWith: "D"
-  //     }
-  //   }
-  // })
-  // console.log(posts.length);
-
-  // ====================== Filter posts for users that have an email ending with hotmail.com ======================
-
-  // const userPosts = await prisma.post.findMany({
-  //   where: {
-  //     user: {
-  //       email: {
-  //         endsWith: "hotmail.com",
-  //       },
-  //     },
+  //     published: true,
+  //   },
+  //   orderBy: {
+  //     views: "desc",
+  //   },
+  //   select: {
+  //     id: true,
+  //     views: true,
   //   },
   // });
-
-  // console.log(userPosts.length);
-
-  // ====================== Filter user s based on published posts ======================
-
-  // const usersWithPublishedPosts = await prisma.user.findMany({
-  //   where: {
-  //     Post: {
-  //       some: {
-  //         published: true,
-  //         views: { lt: 100 },
-  //       },
-  //     },
+  // console.log(posts);
+  // ======================== Sort by users name in ascending order ========================
+  // const users = await prisma.user.findMany({
+  //   orderBy: {
+  //     name: "asc",
+  //   },
+  //   select: {
+  //     id: true,
+  //     name: true,
   //   },
   // });
+  // console.log(users);
+  // ======================== Sort users by the number of posts they have is descending order ========================
 
-  // console.log(usersWithPublishedPosts.length);
+  const users = await prisma.user.findMany({
+    orderBy: {
+      Post: {
+        _count: "desc",
+      },
+    },
 
+    select: {
+      name: true,
+      Post: { select: { id: true } },
+    },
+  });
 
-  // AND Logical operator
-
-  const posts = await prisma.post.findMany({
-    where: {
-      AND: [
-        {published:true},
-        {
-          user: {
-            email:{endsWith: "gmail.com"}
-          }
-        }
-      ]
-    }
-  })
-
-  console.log(posts.length);
-
+  for (const user of users) {
+    console.log(`Name: ${user.name} - Posts count: ${user.Post.length}`);
+  }
 }
 
 main()

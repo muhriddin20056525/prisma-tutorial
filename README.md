@@ -525,15 +525,16 @@ console.log(usersWithPublishedPosts.length);
 - Kam ko‘rilgan va Published postlarga ega foydalanuvchilarni olish
 
 ```ts
-
 const posts = await prisma.post.findMany({
   where: {
-    AND: [ // Barcha shartlar bajarilishi kerak
+    AND: [
+      // Barcha shartlar bajarilishi kerak
       {
         isPublished: true, // Post e'lon qilingan bo‘lishi kerak
       },
       {
-        user: { // Postga tegishli user haqida shart
+        user: {
+          // Postga tegishli user haqida shart
           email: {
             endsWith: "gmail.com", // Email manzili "gmail.com" bilan tugashi kerak
           },
@@ -555,9 +556,86 @@ const posts = await prisma.post.findMany({
 });
 
 console.log(posts);
-
 ```
+
 - Quyidagi shartlarga mos keladigan postlarni olish:
- - published = true
- - User emaili gmail.com bilan tugagan
- - Ko‘rishlar soni 800 dan kam emas (>= 800)
+- published = true
+- User emaili gmail.com bilan tugagan
+- Ko‘rishlar soni 800 dan kam emas (>= 800)
+
+---
+
+# **9-dars Sorting**
+
+```ts
+// `prisma.post.findMany` orqali `post` jadvalidan ma'lumotlarni olish
+const posts = await prisma.post.findMany({
+  // Faqat `published` qiymati `true` bo'lgan postlar tanlanadi
+  where: {
+    published: true,
+  },
+  // Natijalar `views` (ko‘rishlar soni) bo‘yicha kamayish tartibida saralanadi
+  orderBy: {
+    views: "desc",
+  },
+  // Har bir postdan faqat `id` va `views` ustunlari olinadi
+  select: {
+    id: true,
+    views: true,
+  },
+});
+
+// Olingan `posts` ro‘yxatini konsolga chiqaradi (tekshirish uchun)
+console.log(posts);
+```
+
+- ko'rishlar `views` sonini kamayish tartibida saralb olish
+
+```ts
+// `prisma.user.findMany` orqali `user` jadvalidan foydalanuvchilar ro'yxatini olish
+const users = await prisma.user.findMany({
+  // Natijalarni `name` (ism) bo'yicha alifbo tartibida (`asc` – ascending) saralash
+  orderBy: {
+    name: "asc",
+  },
+  // Har bir foydalanuvchidan faqat `id` va `name` ustunlarini olish
+  select: {
+    id: true,
+    name: true,
+  },
+});
+
+// Olingan foydalanuvchilar ro'yxatini konsolga chiqarish (tekshirish uchun)
+console.log(users);
+```
+
+- Ismlani alifbo tartibida saralash
+
+```ts
+// `prisma.user.findMany` orqali foydalanuvchilar ro'yxatini olish
+const users = await prisma.user.findMany({
+  // Foydalanuvchilarni ularning yozgan postlari soni bo‘yicha kamayish tartibida saralash
+  orderBy: {
+    Post: {
+      _count: "desc", // `Post`lar soni bo‘yicha tartiblash (eng ko‘p postdan kamrog‘igacha)
+    },
+  },
+
+  // Har bir foydalanuvchidan faqat `name` va `Post`lar idlarini olish
+  select: {
+    name: true, // foydalanuvchining ismi
+    Post: {
+      // Postlar bilan bog'langan ma'lumot
+      select: { id: true }, // Har bir postning faqat `id` sini olish
+    },
+  },
+});
+
+// Har bir foydalanuvchini aylanib chiqib, ularning postlar sonini chiqarish
+for (const user of users) {
+  // `user.Post.length` orqali foydalanuvchining nechta posti borligini aniqlaymiz
+  console.log(`Name: ${user.name} - Posts count: ${user.Post.length}`);
+}
+```
+
+- Userning postlari soni bo'yicha kamayish tartibida tartiblash
