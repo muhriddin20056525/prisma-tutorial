@@ -450,3 +450,114 @@ npx prisma db seed
 ```
 
 - `package.json` faylida qo'shgan qismimizni ishga tushuradigan terminal buyruq
+
+---
+
+# **8-dars Filtering**
+
+```ts
+// Prisma ORM orqali postlar jadvalidan ma'lumotlarni olish
+const popularPosts = await prisma.post.findMany({
+  where: {
+    // Filtrlash sharti
+    views: { gt: 500 }, // Faqatgina 500 dan katta ko‘rishga ega postlar tanlanadi (gt = greater than)
+  },
+});
+
+console.log(popularPosts);
+```
+
+- Ko‘rishlar soni 500 dan ortiq bo‘lgan postlarni olish (filterlash)
+
+```ts
+// Prisma ORM orqali postlar jadvalidan ma'lumotlarni olish
+const posts = await prisma.post.findMany({
+  where: {
+    // Filtrlash sharti
+    title: {
+      startsWith: "D", // Faqat sarlavhasi "D" harfi bilan boshlanadigan postlar olinadi
+    },
+  },
+});
+
+console.log(posts.length);
+```
+
+- Title bo'limi `D` harfi bilan boshlanadigan postlarni olish
+
+```ts
+// Prisma ORM orqali postlar jadvalidan mos postlarni olish
+const userPosts = await prisma.post.findMany({
+  where: {
+    // Filtrlash sharti
+    user: {
+      // Aloqador (bog'langan) user jadvalidagi ma'lumotlar orqali filtrlash
+      email: {
+        endsWith: "hotmail.com", // Email manzili "hotmail.com" bilan tugaydigan userlarga tegishli postlar
+      },
+    },
+  },
+});
+
+console.log(userPosts.length);
+```
+
+- Emaili `hotmail.com` bilan tugaydigan foydalanuvchilarning postlarini olish
+
+```ts
+// user jadvalidan foydalanuvchilarni olish
+const usersWithPublishedPosts = await prisma.user.findMany({
+  where: {
+    Post: {
+      // Postlar bilan bog‘liq shartlar (user <-> post orasidagi relation asosida)
+      some: {
+        // Hech bo‘lmaganda bitta post quyidagi shartlarga mos bo‘lishi kerak:
+        published: true, // Post published=true bo‘lishi kerak (published = true)
+        views: { lt: 100 }, // Va bu post 100 martadan kam ko‘rilgan bo‘lishi kerak (lt = less than)
+      },
+    },
+  },
+});
+
+console.log(usersWithPublishedPosts.length);
+```
+
+- Kam ko‘rilgan va Published postlarga ega foydalanuvchilarni olish
+
+```ts
+
+const posts = await prisma.post.findMany({
+  where: {
+    AND: [ // Barcha shartlar bajarilishi kerak
+      {
+        isPublished: true, // Post e'lon qilingan bo‘lishi kerak
+      },
+      {
+        user: { // Postga tegishli user haqida shart
+          email: {
+            endsWith: "gmail.com", // Email manzili "gmail.com" bilan tugashi kerak
+          },
+        },
+      },
+      {
+        views: {
+          gte: 800, // Postning ko‘rishlar soni 800 dan kam bo‘lmasligi kerak (gte = greater than or equal)
+        },
+      },
+    ],
+  },
+  select: {
+    title: true, // Natijada har bir postning title olinadi
+    views: true, // Har bir postning ko‘rishlar soni olinadi
+    isPublished: true, // Har bir post publishmi qilinganmi yoki yo‘q — bu ham olinadi
+    user: { select: { email: true } }, // Faqat user'ning email manzili olinadi
+  },
+});
+
+console.log(posts);
+
+```
+- Quyidagi shartlarga mos keladigan postlarni olish:
+ - published = true
+ - User emaili gmail.com bilan tugagan
+ - Ko‘rishlar soni 800 dan kam emas (>= 800)
